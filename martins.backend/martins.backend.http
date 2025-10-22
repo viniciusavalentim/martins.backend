@@ -1,0 +1,6 @@
+@martins.backend_HostAddress = http://localhost:5110
+
+GET {{martins.backend_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
