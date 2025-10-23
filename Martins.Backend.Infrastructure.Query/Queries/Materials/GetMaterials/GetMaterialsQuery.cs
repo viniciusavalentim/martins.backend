@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using Martins.Backend.Infrastructure.Query.Queries.Materials.GetMaterials;
+using MediatR;
 
 namespace Martins.Backend.Infrastructure.Query.Queries.Material.GetMaterials
 {
