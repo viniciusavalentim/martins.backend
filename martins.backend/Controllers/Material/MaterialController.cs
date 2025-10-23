@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Martins.Backend.Domain.Commands.Material;
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
 
 namespace martins.backend.Controllers.Material
 {
@@ -6,10 +8,18 @@ namespace martins.backend.Controllers.Material
     [ApiController]
     public class MaterialController : ControllerBase
     {
-        [HttpPost("Create-material")]
-        public IActionResult CreateMaterial(Martins.Backend.Domain.Models.Material request)
+        private readonly IMediator _mediator;
+
+        public MaterialController(IMediator mediator)
         {
-            return Ok("Material created successfully.");
+            _mediator = mediator;
+        }
+
+        [HttpPost("Create-material")]
+        public async Task<IActionResult> CreateMaterial(CreateMaterialCommand request)
+        {
+            var result = await _mediator.Send(request);
+            return Ok(result);
         }
     }
 }
