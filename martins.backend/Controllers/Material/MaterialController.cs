@@ -19,6 +19,7 @@ namespace martins.backend.Controllers.Material
         public async Task<IActionResult> CreateMaterial(CreateMaterialCommand request)
         {
             var result = await _mediator.Send(request);
+            if (!result.Success) BadRequest(result);
             return Ok(result);
         }
     }

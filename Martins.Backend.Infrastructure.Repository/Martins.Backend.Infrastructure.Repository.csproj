@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Martins.Backend.Domain\Martins.Backend.Domain.csproj" />
+    <ProjectReference Include="..\Martins.Backend.Infrastructure.Query\Martins.Backend.Infrastructure.Query.csproj" />
   </ItemGroup>
 
 </Project>
