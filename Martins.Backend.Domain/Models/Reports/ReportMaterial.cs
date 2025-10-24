@@ -14,7 +14,7 @@ namespace Martins.Backend.Domain.Models.Report
         public double? LowStockThreshold { get; set; }
         public MovementTypeEnum MovementType { get; set; }
         public DateTime? LastUpdatedAt { get; set; }
-        public DateTime CreatedAt { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public Guid? SupplierId { get; set; }
         public Supplier? Supplier { get; set; }
     }

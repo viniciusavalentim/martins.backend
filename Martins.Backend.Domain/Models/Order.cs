@@ -9,7 +9,7 @@ namespace Martins.Backend.Domain.Models
         public Guid Id { get; set; }
         public Guid? CustomerId { get; set; }
         public Customer? Customer { get; set; }
-        public DateTime OrderDate { get; set; }
+        public DateTime OrderDate { get; set; } = DateTime.UtcNow;
         public decimal TotalAmount { get; set; }
         public decimal Profit { get; set; }
         public decimal TotalCost { get; set; }

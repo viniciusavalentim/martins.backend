@@ -31,7 +31,6 @@ namespace martins.backend.Controllers.Material
         public async Task<IActionResult> GetMaterials([FromQuery] GetMaterialsQuery query)
         {
             var result = await _mediator.Send(query);
-            if (!result.Success) return BadRequest(result);
             return Ok(result);
         }
 
