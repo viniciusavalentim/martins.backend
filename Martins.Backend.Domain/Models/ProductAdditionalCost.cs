@@ -1,15 +1,18 @@
 ﻿using Martins.Backend.Domain.Enums;
+using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace Martins.Backend.Domain.Models
 {
     public class ProductAdditionalCost
     {
+        [Key]
         public Guid Id { get; set; }
         public required string Description { get; set; }
         public CostTypeEnum Type { get; set; }
         public decimal Value { get; set; }
 
         public Guid ProductId { get; set; }
-        public Product Product { get; set; } = null!;
+        public Product? Product { get; set; }
     }
 }
