@@ -7,11 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="FluentValidation" Version="12.0.0" />
     <PackageReference Include="MediatR" Version="13.0.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Martins.Backend.Domain\Martins.Backend.Domain.csproj" />
+    <ProjectReference Include="..\martins.backend\martins.backend.csproj" />
   </ItemGroup>
 
 </Project>

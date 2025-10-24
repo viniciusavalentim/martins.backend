@@ -19,6 +19,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Martins.Backend.Infrastruct
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Martins.Backend.Infrastructure.Service", "Martins.Backend.Infrastructure.Service\Martins.Backend.Infrastructure.Service.csproj", "{E3C0AB54-373D-4374-8BFC-F2024D95E3F7}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "4 - CrossCutting", "4 - CrossCutting", "{8CD6A90C-B478-4E3C-BF0A-F0E8273A1E09}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Martins.Backend.CrossCutting.Configuration", "Martins.Backend.CrossCutting.Configuration\Martins.Backend.CrossCutting.Configuration.csproj", "{0F7B2632-C086-4F99-93A5-59CCD46DC680}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +49,10 @@ Global
 		{E3C0AB54-373D-4374-8BFC-F2024D95E3F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E3C0AB54-373D-4374-8BFC-F2024D95E3F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E3C0AB54-373D-4374-8BFC-F2024D95E3F7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0F7B2632-C086-4F99-93A5-59CCD46DC680}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0F7B2632-C086-4F99-93A5-59CCD46DC680}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0F7B2632-C086-4F99-93A5-59CCD46DC680}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0F7B2632-C086-4F99-93A5-59CCD46DC680}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -55,6 +63,7 @@ Global
 		{E18EB659-B4CC-4046-8209-5F163EA93293} = {9DED696C-5EBD-4C60-95AA-ADC300F83014}
 		{BFC2B782-CCD8-4A6C-BBC9-33A52B4AB28A} = {9DED696C-5EBD-4C60-95AA-ADC300F83014}
 		{E3C0AB54-373D-4374-8BFC-F2024D95E3F7} = {9DED696C-5EBD-4C60-95AA-ADC300F83014}
+		{0F7B2632-C086-4F99-93A5-59CCD46DC680} = {8CD6A90C-B478-4E3C-BF0A-F0E8273A1E09}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6B55CD50-E5F4-4FB4-812A-B972802F5142}

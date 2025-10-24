@@ -1,10 +1,11 @@
 ﻿using Martins.Backend.Domain.Enums;
 using MediatR;
 
-namespace Martins.Backend.Domain.Commands.Material
+namespace Martins.Backend.Domain.Commands.Material.Update
 {
-    public class CreateMaterialCommand : IRequest<CreateMaterialCommandResponse>
+    public class UpdateMaterialCommand : IRequest<UpdateMaterialCommandResponse>
     {
+        public required Guid MaterialId { get; set; }
         public required string Name { get; set; }
         public required string Category { get; set; }
         public decimal CurrentStock { get; set; }

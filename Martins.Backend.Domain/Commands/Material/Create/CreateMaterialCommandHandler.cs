@@ -1,7 +1,7 @@
 ﻿using Martins.Backend.Domain.Interfaces.Repositories.Materials;
 using MediatR;
 
-namespace Martins.Backend.Domain.Commands.Material
+namespace Martins.Backend.Domain.Commands.Material.Create
 {
     public class CreateMaterialCommandHandler : IRequestHandler<CreateMaterialCommand, CreateMaterialCommandResponse>
     {

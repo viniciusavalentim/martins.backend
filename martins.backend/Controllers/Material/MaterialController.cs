@@ -1,5 +1,8 @@
-﻿using Martins.Backend.Domain.Commands.Material;
+﻿using Martins.Backend.Domain.Commands.Material.AddStock;
+using Martins.Backend.Domain.Commands.Material.Create;
+using Martins.Backend.Domain.Commands.Material.Update;
 using Martins.Backend.Infrastructure.Query.Queries.Material.GetMaterials;
+using Martins.Backend.Infrastructure.Query.Queries.Materials.GetReportMaterials;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,7 +19,7 @@ namespace martins.backend.Controllers.Material
             _mediator = mediator;
         }
 
-        [HttpPost("Create-material")]
+        [HttpPost("create-material")]
         public async Task<IActionResult> CreateMaterial([FromBody] CreateMaterialCommand request)
         {
             var result = await _mediator.Send(request);
@@ -25,9 +28,32 @@ namespace martins.backend.Controllers.Material
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetMAterials([FromQuery] GetMaterialsQuery query)
+        public async Task<IActionResult> GetMaterials([FromQuery] GetMaterialsQuery query)
         {
             var result = await _mediator.Send(query);
+            if (!result.Success) return BadRequest(result);
+            return Ok(result);
+        }
+
+        [HttpGet("report")]
+        public async Task<IActionResult> GetReportMaterials([FromQuery] GetReportMaterialQuery query)
+        {
+            var result = await _mediator.Send(query);
+            return Ok(result);
+        }
+
+        [HttpPut("add-stock")]
+        public async Task<IActionResult> AddStockMaterial([FromBody] AddStockCommand request)
+        {
+            var result = await _mediator.Send(request);
+            if (!result.Success) return BadRequest(result);
+            return Ok(result);
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> UpdateMaterial([FromBody] UpdateMaterialCommand request)
+        {
+            var result = await _mediator.Send(request);
             if (!result.Success) return BadRequest(result);
             return Ok(result);
         }
