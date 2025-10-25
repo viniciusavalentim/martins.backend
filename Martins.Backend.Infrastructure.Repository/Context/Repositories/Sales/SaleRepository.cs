@@ -1,4 +1,5 @@
 ﻿using Martins.Backend.Domain.Commands.Sale.Create;
+using Martins.Backend.Domain.Commands.Sale.CreateCustomer;
 using Martins.Backend.Domain.Enums;
 using Martins.Backend.Domain.Interfaces.Repositories.Sales;
 using Martins.Backend.Domain.Models;
@@ -222,6 +223,72 @@ namespace Martins.Backend.Infrastructure.Repository.Context.Repositories.Sales
             {
                 response.Success = false;
                 response.Message = $"Erro ao atualizar o status da venda: {ex.Message}";
+                return response;
+            }
+        }
+
+        public async Task<RepositoryResponseBase<List<Customer>>> GetCustomers(string? searchQuery)
+        {
+            var response = new RepositoryResponseBase<List<Customer>>();
+            try
+            {
+                IQueryable<Customer> query = _context.Customer;
+
+                if (!string.IsNullOrWhiteSpace(searchQuery))
+                {
+                    var searchTerm = searchQuery.Trim().ToLower();
+                    query = query.Where(c => c.Name.ToLower().Contains(searchTerm) ||
+                                             (c.Email != null && c.Email.ToLower().Contains(searchTerm)));
+                }
+
+                var customers = await query
+                    .OrderBy(c => c.Name)
+                    .ToListAsync();
+
+                response.Data = customers;
+                response.Success = true;
+                response.Message = "Clientes recuperados com sucesso.";
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = $"Erro ao recuperar clientes: {ex.Message}";
+                return response;
+            }
+        }
+
+        public async Task<RepositoryResponseBase<Customer>> CreateCustomer(CreateCustomerCommand request)
+        {
+            var response = new RepositoryResponseBase<Customer>();
+            try
+            {
+                if (!string.IsNullOrWhiteSpace(request.Email))
+                {
+                    var emailExists = await _context.Customer
+                                            .AnyAsync(c => c.Email != null && c.Email.ToLower() == request.Email.ToLower());
+                }
+
+                var customer = new Customer
+                {
+                    Name = request.Name,
+                    Email = request.Email,
+                    Phone = request.Phone,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                await _context.Customer.AddAsync(customer);
+                await _context.SaveChangesAsync();
+
+                response.Data = customer;
+                response.Success = true;
+                response.Message = "Cliente criado com sucesso.";
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = $"Erro ao criar o cliente: {ex.Message}";
                 return response;
             }
         }

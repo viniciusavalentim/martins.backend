@@ -17,8 +17,8 @@ namespace Martins.Backend.Domain.Commands.Sale.Create
 
             var response = new CreateSaleCommandResponse
             {
-                Success = true,
-                Message = "Sale created successfully."
+                Success = createSale.Success,
+                Message = createSale.Message
             };
             return response;
         }

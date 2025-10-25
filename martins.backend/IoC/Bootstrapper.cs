@@ -1,5 +1,7 @@
 ﻿using FluentValidation;
 using martins.backend.Behavior;
+using Martins.Backend.Domain.Commands.Expense.Create;
+using Martins.Backend.Domain.Commands.Expense.Update;
 using Martins.Backend.Domain.Commands.Material.AddStock;
 using Martins.Backend.Domain.Commands.Material.Create;
 using Martins.Backend.Domain.Commands.Material.Update;
@@ -7,12 +9,17 @@ using Martins.Backend.Domain.Commands.Product.Create;
 using Martins.Backend.Domain.Commands.Product.Produce;
 using Martins.Backend.Domain.Commands.Product.Update;
 using Martins.Backend.Domain.Commands.Sale.Create;
+using Martins.Backend.Domain.Commands.Sale.CreateCustomer;
+using Martins.Backend.Domain.Interfaces.Repositories.Expenses;
 using Martins.Backend.Domain.Interfaces.Repositories.Materials;
 using Martins.Backend.Domain.Interfaces.Repositories.Product;
 using Martins.Backend.Domain.Interfaces.Repositories.Sales;
+using Martins.Backend.Infrastructure.Query.Queries.Expenses;
 using Martins.Backend.Infrastructure.Query.Queries.Material.GetMaterials;
 using Martins.Backend.Infrastructure.Query.Queries.Materials.GetReportMaterials;
 using Martins.Backend.Infrastructure.Query.Queries.Products.GetReportProducts;
+using Martins.Backend.Infrastructure.Query.Queries.Sales.GetCustomers;
+using Martins.Backend.Infrastructure.Repository.Context.Repositories;
 using Martins.Backend.Infrastructure.Repository.Context.Repositories.Materials;
 using Martins.Backend.Infrastructure.Repository.Context.Repositories.Products;
 using Martins.Backend.Infrastructure.Repository.Context.Repositories.Sales;
@@ -37,6 +44,12 @@ namespace Pim.Helpdesk
                 cfg.RegisterServicesFromAssembly(typeof(GetReportProductsQuery).Assembly);
                 cfg.RegisterServicesFromAssembly(typeof(UpdateProductCommand).Assembly);
                 cfg.RegisterServicesFromAssembly(typeof(CreateSaleCommand).Assembly);
+                cfg.RegisterServicesFromAssembly(typeof(CreateCustomerCommand).Assembly);
+                cfg.RegisterServicesFromAssembly(typeof(GetCustomersQuery).Assembly);
+                cfg.RegisterServicesFromAssembly(typeof(GetExpensesQuery).Assembly);
+                cfg.RegisterServicesFromAssembly(typeof(CreateExpenseCommand).Assembly);
+                cfg.RegisterServicesFromAssembly(typeof(UpdateExpenseCommand).Assembly);
+
             });
 
             services.AddValidatorsFromAssembly(typeof(AddStockCommand).Assembly);
@@ -50,6 +63,8 @@ namespace Pim.Helpdesk
             services.AddScoped<IProductRepositoryInterface, ProductRepository>();
             services.AddScoped<IMaterialRepositoryInterface, MaterialRepository>();
             services.AddScoped<ISaleRepositoryInterface, SaleRepository>();
+            services.AddScoped<IExpensesRepositoryInterface, ExpensesRepository>();
+
         }
     }
 }
