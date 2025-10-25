@@ -157,6 +157,8 @@ namespace Martins.Backend.Infrastructure.Repository.Context.Repositories.Materia
                         (m.Category != null && m.Category.ToLower().Contains(search)));
                 }
 
+                query = query.OrderByDescending(m => m.CreatedAt);
+
                 var materials = await query.ToListAsync();
 
                 response.Data = materials;
@@ -190,6 +192,8 @@ namespace Martins.Backend.Infrastructure.Repository.Context.Repositories.Materia
                         (m.Name != null && m.Name.ToLower().Contains(search)) ||
                         (m.Category != null && m.Category.ToLower().Contains(search)));
                 }
+
+                query = query.OrderByDescending(m => m.CreatedAt);
 
                 var materials = await query.ToListAsync();
 

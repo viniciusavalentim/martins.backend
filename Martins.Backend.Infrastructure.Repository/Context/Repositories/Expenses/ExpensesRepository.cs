@@ -7,7 +7,7 @@ using Martins.Backend.Domain.Models.Repositories.Response;
 using Martins.Backend.Infrastructure.Query.Queries.Expenses;
 using Microsoft.EntityFrameworkCore;
 
-namespace Martins.Backend.Infrastructure.Repository.Context.Repositories
+namespace Martins.Backend.Infrastructure.Repository.Context.Repositories.Expenses
 {
     public class ExpensesRepository : IExpensesRepositoryInterface
     {
@@ -37,7 +37,7 @@ namespace Martins.Backend.Infrastructure.Repository.Context.Repositories
                     Category = request.Category,
                     Amount = request.Amount,
                     Type = request.Type,
-                    RecurrenceInterval = (request.Type == ExpenseTypeEnum.OneTime) ? null : request.RecurrenceInterval,
+                    RecurrenceInterval = request.Type == ExpenseTypeEnum.OneTime ? null : request.RecurrenceInterval,
                     Date = request.Date,
                     Notes = request.Notes,
                     CreatedAt = DateTime.UtcNow
@@ -85,7 +85,7 @@ namespace Martins.Backend.Infrastructure.Repository.Context.Repositories
                 expense.Category = request.Category;
                 expense.Amount = request.Amount;
                 expense.Type = request.Type;
-                expense.RecurrenceInterval = (request.Type == ExpenseTypeEnum.OneTime) ? null : request.RecurrenceInterval;
+                expense.RecurrenceInterval = request.Type == ExpenseTypeEnum.OneTime ? null : request.RecurrenceInterval;
                 expense.Date = request.Date;
                 expense.Notes = request.Notes;
 
@@ -136,7 +136,7 @@ namespace Martins.Backend.Infrastructure.Repository.Context.Repositories
                 {
                     var searchTerm = searchText.Trim().ToLower();
                     queryable = queryable.Where(e => e.Name.ToLower().Contains(searchTerm) ||
-                                                     (e.Notes != null && e.Notes.ToLower().Contains(searchTerm)));
+                                                     e.Notes != null && e.Notes.ToLower().Contains(searchTerm));
                 }
 
                 var expenses = await queryable

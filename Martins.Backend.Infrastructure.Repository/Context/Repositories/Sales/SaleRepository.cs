@@ -169,6 +169,8 @@ namespace Martins.Backend.Infrastructure.Repository.Context.Repositories.Sales
                     query = query.Where(o => o.OrderDate < inclusiveEndDate);
                 }
 
+                query = query.OrderByDescending(m => m.OrderDate);
+
                 var sales = await query
                     .Include(o => o.Customer)
                     .Include(o => o.Items)
@@ -240,6 +242,8 @@ namespace Martins.Backend.Infrastructure.Repository.Context.Repositories.Sales
                     query = query.Where(c => c.Name.ToLower().Contains(searchTerm) ||
                                              (c.Email != null && c.Email.ToLower().Contains(searchTerm)));
                 }
+
+                query = query.OrderByDescending(m => m.CreatedAt);
 
                 var customers = await query
                     .OrderBy(c => c.Name)

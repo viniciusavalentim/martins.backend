@@ -4,6 +4,6 @@ namespace Martins.Backend.Infrastructure.Query.Queries.Materials.GetReportMateri
 {
     public class GetReportMaterialQuery : IRequest<GetReportMaterialQueryResponse>
     {
-        public string SearchText { get; set; } = string.Empty;
+        public string? SearchText { get; set; } = string.Empty;
     }
 }

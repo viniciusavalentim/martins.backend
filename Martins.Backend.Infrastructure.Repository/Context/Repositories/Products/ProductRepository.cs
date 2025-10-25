@@ -234,6 +234,8 @@ namespace Martins.Backend.Infrastructure.Repository.Context.Repositories.Product
                         (m.Description != null && m.Description.ToLower().Contains(search)));
                 }
 
+                query = query.OrderByDescending(m => m.CreatedAt);
+
                 var products = await query.ToListAsync();
 
                 response.Data = products;
@@ -267,6 +269,8 @@ namespace Martins.Backend.Infrastructure.Repository.Context.Repositories.Product
                         (m.Name != null && m.Name.ToLower().Contains(search)) ||
                         (m.Description != null && m.Description.ToLower().Contains(search)));
                 }
+
+                query = query.OrderByDescending(m => m.CreatedAt);
 
                 var reportProducts = await query.ToListAsync();
 

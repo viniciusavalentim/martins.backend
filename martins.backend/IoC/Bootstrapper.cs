@@ -19,7 +19,7 @@ using Martins.Backend.Infrastructure.Query.Queries.Material.GetMaterials;
 using Martins.Backend.Infrastructure.Query.Queries.Materials.GetReportMaterials;
 using Martins.Backend.Infrastructure.Query.Queries.Products.GetReportProducts;
 using Martins.Backend.Infrastructure.Query.Queries.Sales.GetCustomers;
-using Martins.Backend.Infrastructure.Repository.Context.Repositories;
+using Martins.Backend.Infrastructure.Repository.Context.Repositories.Expenses;
 using Martins.Backend.Infrastructure.Repository.Context.Repositories.Materials;
 using Martins.Backend.Infrastructure.Repository.Context.Repositories.Products;
 using Martins.Backend.Infrastructure.Repository.Context.Repositories.Sales;
