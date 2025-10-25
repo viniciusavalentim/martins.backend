@@ -18,5 +18,6 @@ namespace Martins.Backend.Domain.Interfaces.Repositories.Sales
         Task<RepositoryResponseBase<bool>> UpdateSaleStatus(Guid orderId, OrderStatusEnum newStatus);
         Task<RepositoryResponseBase<List<Customer>>> GetCustomers(string? searchQuery);
         Task<RepositoryResponseBase<Customer>> CreateCustomer(CreateCustomerCommand request);
+        Task<RepositoryResponseBase<DashboardModel>> GetDashboardData(DateTime startDate, DateTime endDate);
     }
 }

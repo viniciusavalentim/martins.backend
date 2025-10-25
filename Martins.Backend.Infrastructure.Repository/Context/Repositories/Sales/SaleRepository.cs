@@ -292,5 +292,128 @@ namespace Martins.Backend.Infrastructure.Repository.Context.Repositories.Sales
                 return response;
             }
         }
+
+
+        public async Task<RepositoryResponseBase<DashboardModel>> GetDashboardData(DateTime startDate, DateTime endDate)
+        {
+            var response = new RepositoryResponseBase<DashboardModel>();
+            var dashboardData = new DashboardModel();
+
+            try
+            {
+                var currentPeriodStart = startDate.Date;
+                var currentPeriodEnd = endDate.Date.AddDays(1);
+
+                var periodDuration = (endDate.Date - startDate.Date).Days + 1;
+                var prevPeriodEnd = currentPeriodStart; // O dia antes do início atual
+                var prevPeriodStartDate = prevPeriodEnd.AddDays(-periodDuration);
+
+                var currentOrders = _context.Order
+                                        .Where(o => o.OrderDate >= currentPeriodStart && o.OrderDate < currentPeriodEnd);
+
+                var currentExpenses = _context.OperationalExpense
+                                        .Where(e => e.Date >= currentPeriodStart && e.Date < currentPeriodEnd);
+
+                var currentRevenue = await currentOrders.SumAsync(o => o.TotalAmount);
+                var currentProfit = await currentOrders.SumAsync(o => o.Profit);
+                var currentOrderCount = (decimal)await currentOrders.CountAsync();
+                var currentExpense = await currentExpenses.SumAsync(e => e.Amount);
+
+
+                var prevOrders = _context.Order
+                                        .Where(o => o.OrderDate >= prevPeriodStartDate && o.OrderDate < prevPeriodEnd);
+
+                var prevExpenses = _context.OperationalExpense
+                                        .Where(e => e.Date >= prevPeriodStartDate && e.Date < prevPeriodEnd);
+
+                var prevRevenue = await prevOrders.SumAsync(o => o.TotalAmount);
+                var prevProfit = await prevOrders.SumAsync(o => o.Profit);
+                var prevOrderCount = (decimal)await prevOrders.CountAsync();
+                var prevExpense = await prevExpenses.SumAsync(e => e.Amount);
+
+
+                dashboardData.TotalRevenue = new KpiCardModel
+                {
+                    Value = currentRevenue,
+                    ChangePercentage = CalculatePercentageChange(currentRevenue, prevRevenue)
+                };
+                dashboardData.TotalOrders = new KpiCardModel
+                {
+                    Value = currentOrderCount,
+                    ChangePercentage = CalculatePercentageChange(currentOrderCount, prevOrderCount)
+                };
+                dashboardData.TotalProfit = new KpiCardModel
+                {
+                    Value = currentProfit,
+                    ChangePercentage = CalculatePercentageChange(currentProfit, prevProfit)
+                };
+                dashboardData.TotalExpense = new KpiCardModel
+                {
+                    Value = currentExpense,
+                    ChangePercentage = CalculatePercentageChange(currentExpense, prevExpense)
+                };
+
+                var dailySales = await currentOrders
+                    .GroupBy(o => o.OrderDate.Date)
+                    .Select(g => new DailyDataPoint
+                    {
+                        DateLabel = g.Key.ToString("dd/MM/yyyy"),
+                        Revenue = g.Sum(o => o.TotalAmount),
+                        Profit = g.Sum(o => o.Profit)
+                    })
+                    .OrderBy(d => d.DateLabel)
+                    .ToListAsync();
+
+                dashboardData.DailySalesChart = new DailySalesChartModel { DataPoints = dailySales };
+
+                dashboardData.PeriodSalesChart = new PeriodSalesChartModel
+                {
+                    PeriodLabel = $"Exibindo vendas de {currentPeriodStart:dd/MM/yyyy} a {endDate.Date:dd/MM/yyyy}",
+                    TrendPercentage = dashboardData.TotalRevenue.ChangePercentage,
+                    DataPoints = dailySales.Select(d => new TimeDataPoint
+                    {
+                        DateLabel = d.DateLabel.Substring(0, 5),
+                        Value = d.Revenue
+                    }).ToList()
+                };
+
+                var topProducts = await _context.OrderItem
+                    .Where(oi => oi.Order.OrderDate >= currentPeriodStart && oi.Order.OrderDate < currentPeriodEnd)
+                    .GroupBy(oi => new { oi.ProductId, oi.Name })
+                    .Select(g => new ProductSegment
+                    {
+                        ProductName = g.Key.Name,
+                        Quantity = (int)g.Sum(oi => oi.Quantity)
+                    })
+                    .OrderByDescending(p => p.Quantity)
+                    .Take(3)
+                    .ToListAsync();
+
+                dashboardData.TopSellingProductsChart = new TopProductsChartModel { Segments = topProducts };
+
+                response.Data = dashboardData;
+                response.Success = true;
+                response.Message = "Dados do dashboard recuperados com sucesso.";
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = $"Erro ao buscar dados do dashboard: {ex.Message}";
+                response.Data = null;
+                return response;
+            }
+        }
+        private double CalculatePercentageChange(decimal current, decimal previous)
+        {
+            if (previous == 0)
+            {
+                return (current > 0) ? 100.0 : 0.0;
+            }
+
+            var change = ((current - previous) / previous);
+            return (double)Math.Round(change * 100, 2);
+        }
     }
 }
