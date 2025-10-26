@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Martins.Backend.Infrastructure.Repository.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251023172944_atualizado-tabelas")]
-    partial class atualizadotabelas
+    [Migration("20251026143420_StartDatabase")]
+    partial class StartDatabase
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -174,10 +174,7 @@ namespace Martins.Backend.Infrastructure.Repository.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("OrderId")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("OrderId1")
+                    b.Property<Guid>("OrderId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("ProductId")
@@ -200,7 +197,7 @@ namespace Martins.Backend.Infrastructure.Repository.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("OrderId1");
+                    b.HasIndex("OrderId");
 
                     b.HasIndex("ProductId");
 
@@ -229,17 +226,17 @@ namespace Martins.Backend.Infrastructure.Repository.Migrations
                     b.Property<decimal>("Profit")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<double>("ProfitMarginPorcent")
-                        .HasColumnType("float");
+                    b.Property<decimal>("ProfitMarginPorcent")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("SellingPrice")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<double>("StockOnHand")
-                        .HasColumnType("float");
+                    b.Property<decimal>("StockOnHand")
+                        .HasColumnType("decimal(18,2)");
 
-                    b.Property<double>("StockQuantity")
-                        .HasColumnType("float");
+                    b.Property<decimal>("StockQuantity")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("TotalAdditionalCosts")
                         .HasColumnType("decimal(18,2)");
@@ -295,8 +292,8 @@ namespace Martins.Backend.Infrastructure.Repository.Migrations
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<double>("QuantityUsed")
-                        .HasColumnType("float");
+                    b.Property<decimal>("QuantityUsed")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<Guid?>("ReportProductId")
                         .HasColumnType("uniqueidentifier");
@@ -384,17 +381,17 @@ namespace Martins.Backend.Infrastructure.Repository.Migrations
                     b.Property<decimal>("Profit")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<double>("ProfitMarginPorcent")
-                        .HasColumnType("float");
+                    b.Property<decimal>("ProfitMarginPorcent")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("SellingPrice")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<double>("StockOnHand")
-                        .HasColumnType("float");
+                    b.Property<decimal>("StockOnHand")
+                        .HasColumnType("decimal(18,2)");
 
-                    b.Property<double>("StockQuantity")
-                        .HasColumnType("float");
+                    b.Property<decimal>("StockQuantity")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("TotalAdditionalCosts")
                         .HasColumnType("decimal(18,2)");
@@ -456,7 +453,7 @@ namespace Martins.Backend.Infrastructure.Repository.Migrations
                 {
                     b.HasOne("Martins.Backend.Domain.Models.Order", "Order")
                         .WithMany("Items")
-                        .HasForeignKey("OrderId1")
+                        .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

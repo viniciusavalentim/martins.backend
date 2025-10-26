@@ -17,7 +17,7 @@ namespace Martins.Backend.Infrastructure.Query.Queries.Material.GetMaterials
         {
             var response = new GetMaterialsQueryResponse();
 
-            var materials = await _materialRepository.GetMaterials(request.SearchText);
+            var materials = await _materialRepository.GetMaterials(request.SearchText ?? "");
 
 
             response.Data = materials.Data;

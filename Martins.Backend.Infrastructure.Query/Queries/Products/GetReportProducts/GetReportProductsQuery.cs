@@ -4,6 +4,6 @@ namespace Martins.Backend.Infrastructure.Query.Queries.Products.GetReportProduct
 {
     public class GetReportProductsQuery : IRequest<GetReportProductsQueryResponse>
     {
-        public string SearchText { get; set; } = string.Empty;
+        public string? SearchText { get; set; } = string.Empty;
     }
 }

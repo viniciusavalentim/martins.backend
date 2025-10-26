@@ -1,11 +1,16 @@
-﻿namespace Martins.Backend.Domain.Models
+﻿using System.Text.Json.Serialization;
+
+namespace Martins.Backend.Domain.Models
 {
     public class OrderItem
     {
         public Guid Id { get; set; }
         public required string Name { get; set; }
-        public int OrderId { get; set; }
-        public Order Order { get; set; } = null!;
+
+        [JsonIgnore]
+        public Guid OrderId { get; set; }
+        [JsonIgnore]
+        public Order? Order { get; set; }
         public Guid ProductId { get; set; }
         public Product? Product { get; set; }
         public double Quantity { get; set; }

@@ -23,72 +23,84 @@ namespace Martins.Backend.Infrastructure.Repository.Context.Repositories.Product
         {
             RepositoryResponseBase<bool> response = new RepositoryResponseBase<bool>();
 
+            var materialIds = request.BillOfMaterials.Select(b => b.MaterialId).ToList();
+            var materialsFromDb = await _context.Material
+                                            .Where(m => materialIds.Contains(m.Id))
+                                            .ToListAsync();
+
+            decimal materialCost = 0;
+            foreach (var bomItem in request.BillOfMaterials)
+            {
+                var material = materialsFromDb.FirstOrDefault(m => m.Id == bomItem.MaterialId);
+
+                if (material != null)
+                {
+                    materialCost += material.UnitCost * bomItem.QuantityUsed;
+                }
+                else
+                {
+                    response.Success = false;
+                    response.Message = $"Erro: Material com ID {bomItem.MaterialId} não foi encontrado.";
+                    return response;
+                }
+            }
+
+            decimal totalAdditionalCosts = 0;
+            if (request.AdditionalCosts != null)
+            {
+                foreach (var additionalCost in request.AdditionalCosts)
+                {
+                    if (additionalCost.Type == CostTypeEnum.PERCENTAGE)
+                    {
+                        totalAdditionalCosts += (materialCost * additionalCost.Value) / 100;
+                    }
+                    else
+                    {
+                        totalAdditionalCosts += additionalCost.Value;
+                    }
+                }
+            }
+
+            decimal totalCost = materialCost + totalAdditionalCosts;
+            decimal profit = (totalCost * (decimal)request.ProfitMarginPorcent) / 100;
+            decimal sellingPrice = totalCost + profit;
+
+            var product = new Product
+            {
+                Name = request.Name,
+                Description = request.Description,
+                StockQuantity = 0,
+                SellingPrice = request.SellingPrice != 0 ? request.SellingPrice : sellingPrice,
+                MaterialCost = materialCost,
+                TotalCost = totalCost,
+                TotalAdditionalCosts = totalAdditionalCosts,
+                Profit = profit,
+                ProfitMarginPorcent = request.ProfitMarginPorcent,
+                BillOfMaterials = new List<ProductMaterial>(),
+                AdditionalCosts = new List<ProductAdditionalCost>()
+            };
+
+            foreach (var bomItem in request.BillOfMaterials)
+            {
+                product.BillOfMaterials.Add(new ProductMaterial
+                {
+                    MaterialId = bomItem.MaterialId,
+                    QuantityUsed = bomItem.QuantityUsed
+                });
+            }
+
+            foreach (var costItem in request.AdditionalCosts)
+            {
+                product.AdditionalCosts.Add(new ProductAdditionalCost
+                {
+                    Description = costItem.Description,
+                    Type = costItem.Type,
+                    Value = costItem.Value
+                });
+            }
+
             try
             {
-                decimal sellingPrice = 0;
-                decimal materialCost = 0;
-                decimal totalCost = 0;
-                decimal totalAdditionalCosts = 0;
-                decimal profit = 0;
-
-                foreach (var material in request.BillOfMaterials)
-                {
-                    if (material.Material != null)
-                    {
-                        materialCost += material.Material.UnitCost * material.QuantityUsed;
-                    }
-                }
-
-                if (request.AdditionalCosts != null)
-                {
-                    foreach (var additionalCost in request.AdditionalCosts)
-                    {
-                        if (additionalCost.Type == CostTypeEnum.PERCENTAGE)
-                        {
-                            totalAdditionalCosts += (materialCost * additionalCost.Value) / 100;
-                        }
-                        else
-                        {
-                            totalAdditionalCosts += additionalCost.Value;
-                        }
-                    }
-                }
-
-                totalCost = materialCost + totalAdditionalCosts;
-                profit = (totalCost * (decimal)request.ProfitMarginPorcent) / 100;
-                sellingPrice = totalCost + profit;
-
-
-                var product = new Product
-                {
-                    Name = request.Name,
-                    Description = request.Description,
-                    StockQuantity = 0,
-                    SellingPrice = request.SellingPrice != 0 ? request.SellingPrice : sellingPrice,
-                    MaterialCost = materialCost,
-                    TotalCost = totalCost,
-                    TotalAdditionalCosts = totalAdditionalCosts,
-                    Profit = profit,
-                    ProfitMarginPorcent = request.ProfitMarginPorcent,
-                    BillOfMaterials = request.BillOfMaterials,
-                    AdditionalCosts = request.AdditionalCosts
-                };
-
-                foreach (var material in request.BillOfMaterials)
-                {
-                    if (material.Material != null)
-                    {
-                        _context.Attach(material.Material);
-
-                        if (material.Material.Supplier != null)
-                            _context.Attach(material.Material.Supplier);
-                    }
-
-                    material.Product = product;
-                    await _context.ProductMaterial.AddAsync(material);
-                }
-
-
                 await _context.Product.AddAsync(product);
                 await _context.SaveChangesAsync();
 
@@ -96,10 +108,10 @@ namespace Martins.Backend.Infrastructure.Repository.Context.Repositories.Product
                 response.Message = "Produto criado com sucesso";
                 return response;
             }
-            catch
+            catch (Exception ex)
             {
                 response.Success = false;
-                response.Message = "Erro ao criar o produto.";
+                response.Message = $"Erro ao salvar o produto: {ex.InnerException?.Message ?? ex.Message}";
                 return response;
             }
         }
@@ -137,7 +149,7 @@ namespace Martins.Backend.Infrastructure.Repository.Context.Repositories.Product
                     CreateReportMaterial(
                             material.Name,
                             material.Category,
-                            material.CurrentStock,
+                            request.QuantityToProduce,
                             MovementTypeEnum.Remove,
                             material.TotalCost,
                             material.UnitOfMeasure,
@@ -160,7 +172,7 @@ namespace Martins.Backend.Infrastructure.Repository.Context.Repositories.Product
                     product.MaterialCost,
                     product.TotalCost,
                     product.TotalAdditionalCosts,
-                    product.StockQuantity,
+                    request.QuantityToProduce,
                     product.Profit,
                     product.ProfitMarginPorcent,
                     product.StockOnHand,
@@ -224,7 +236,7 @@ namespace Martins.Backend.Infrastructure.Repository.Context.Repositories.Product
             try
             {
                 IQueryable<Product> query = _context.Product
-                                           .Include(m => m.AdditionalCosts).Include(m => m.BillOfMaterials);
+                                           .Include(m => m.AdditionalCosts).Include(m => m.BillOfMaterials).ThenInclude(bm => bm.Material); ;
 
                 if (!string.IsNullOrWhiteSpace(searchText))
                 {
@@ -260,7 +272,7 @@ namespace Martins.Backend.Infrastructure.Repository.Context.Repositories.Product
             try
             {
                 IQueryable<ReportProduct> query = _context.ReportProduct
-                                           .Include(m => m.AdditionalCosts).Include(m => m.BillOfMaterials);
+                                           .Include(m => m.AdditionalCosts).Include(m => m.BillOfMaterials).ThenInclude(bm => bm.Material);
 
                 if (!string.IsNullOrWhiteSpace(searchText))
                 {

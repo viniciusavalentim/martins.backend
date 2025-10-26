@@ -171,10 +171,7 @@ namespace Martins.Backend.Infrastructure.Repository.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("OrderId")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("OrderId1")
+                    b.Property<Guid>("OrderId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("ProductId")
@@ -197,7 +194,7 @@ namespace Martins.Backend.Infrastructure.Repository.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("OrderId1");
+                    b.HasIndex("OrderId");
 
                     b.HasIndex("ProductId");
 
@@ -453,7 +450,7 @@ namespace Martins.Backend.Infrastructure.Repository.Migrations
                 {
                     b.HasOne("Martins.Backend.Domain.Models.Order", "Order")
                         .WithMany("Items")
-                        .HasForeignKey("OrderId1")
+                        .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

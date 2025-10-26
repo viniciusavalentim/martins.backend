@@ -30,6 +30,7 @@ namespace Martins.Backend.Infrastructure.Repository.Context.Repositories.Materia
                     .Include(m => m.Supplier)
                     .FirstOrDefaultAsync(m => m.Id == materialId);
 
+
                 if (material == null)
                 {
                     response.Success = false;
@@ -37,10 +38,22 @@ namespace Martins.Backend.Infrastructure.Repository.Context.Repositories.Materia
                     return response;
                 }
 
-                decimal newTotalStock = material.CurrentStock + quantityToAdd;
-                decimal newTotalCost = material.TotalCost + totalCost;
-                //CMP - Custo médio ponderado
-                decimal newUnitCost = newTotalStock > 0 ? newTotalCost / newTotalStock : 0;
+                decimal newTotalStock;
+                decimal newTotalCost;
+                decimal newUnitCost;
+
+                if (material.CurrentStock == 0)
+                {
+                    newTotalStock = quantityToAdd;
+                    newTotalCost = totalCost;
+                    newUnitCost = (quantityToAdd > 0) ? (totalCost / quantityToAdd) : 0;
+                }
+                else
+                {
+                    newTotalStock = material.CurrentStock + quantityToAdd;
+                    newTotalCost = material.TotalCost + totalCost;
+                    newUnitCost = newTotalStock > 0 ? newTotalCost / newTotalStock : 0;
+                }
 
                 material.CurrentStock = newTotalStock;
                 material.TotalCost = newTotalCost;
@@ -58,6 +71,8 @@ namespace Martins.Backend.Infrastructure.Repository.Context.Repositories.Materia
                     response.Message = "Material não encontrado.";
                     return response;
                 }
+
+                await RecalculateProductCostsByMaterial(materialId);
 
                 _context.Material.Update(material);
                 await _context.SaveChangesAsync();
@@ -299,7 +314,8 @@ namespace Martins.Backend.Infrastructure.Repository.Context.Repositories.Materia
                     response.Message = "Material não encontrado.";
                     return response;
                 }
-                
+
+                await RecalculateProductCostsByMaterial(material.Id);
                 _context.Material.Update(material);
                 await _context.SaveChangesAsync();
 
@@ -313,6 +329,65 @@ namespace Martins.Backend.Infrastructure.Repository.Context.Repositories.Materia
                 response.Success = false;
                 response.Message = $"Erro ao criar o matérial: {ex.Message}";
                 return response;
+            }
+        }
+
+        private async Task RecalculateProductCostsByMaterial(Guid materialId)
+        {
+            var affectedProductIds = await _context.ProductMaterial
+                .Where(pm => pm.MaterialId == materialId)
+                .Select(pm => pm.ProductId)
+                .Distinct()
+                .ToListAsync();
+
+            if (!affectedProductIds.Any())
+            {
+                return;
+            }
+
+            var affectedProducts = await _context.Product
+                .Where(p => affectedProductIds.Contains(p.Id))
+                .Include(p => p.BillOfMaterials)
+                    .ThenInclude(bm => bm.Material)
+                .Include(p => p.AdditionalCosts)
+                .ToListAsync();
+
+            foreach (var product in affectedProducts)
+            {
+                decimal newMaterialCost = 0;
+                foreach (var bomItem in product.BillOfMaterials)
+                {
+                    if (bomItem.Material != null)
+                    {
+                        newMaterialCost += bomItem.Material.UnitCost * bomItem.QuantityUsed;
+                    }
+                }
+
+                decimal newTotalAdditionalCosts = 0;
+                if (product.AdditionalCosts != null)
+                {
+                    foreach (var additionalCost in product.AdditionalCosts)
+                    {
+                        if (additionalCost.Type == CostTypeEnum.PERCENTAGE)
+                        {
+                            newTotalAdditionalCosts += (newMaterialCost * additionalCost.Value) / 100;
+                        }
+                        else
+                        {
+                            newTotalAdditionalCosts += additionalCost.Value;
+                        }
+                    }
+                }
+
+                decimal newTotalCost = newMaterialCost + newTotalAdditionalCosts;
+                decimal newProfit = (newTotalCost * product.ProfitMarginPorcent) / 100;
+                decimal newSellingPrice = newTotalCost + newProfit;
+
+                product.MaterialCost = Math.Round(newMaterialCost, 3);
+                product.TotalAdditionalCosts = Math.Round(newTotalAdditionalCosts, 3);
+                product.TotalCost = Math.Round(newTotalCost, 3);
+                product.Profit = Math.Round(newProfit, 3);
+                product.SellingPrice = Math.Round(newSellingPrice, 3);
             }
         }
     }

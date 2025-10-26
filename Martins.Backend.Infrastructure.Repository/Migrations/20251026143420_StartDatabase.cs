@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Martins.Backend.Infrastructure.Repository.Migrations
 {
     /// <inheritdoc />
-    public partial class ImplementModels : Migration
+    public partial class StartDatabase : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -56,42 +56,15 @@ namespace Martins.Backend.Infrastructure.Repository.Migrations
                     MaterialCost = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     TotalCost = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     TotalAdditionalCosts = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    StockQuantity = table.Column<double>(type: "float", nullable: false),
+                    StockQuantity = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Profit = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    ProfitMarginPorcent = table.Column<double>(type: "float", nullable: false),
-                    StockOnHand = table.Column<double>(type: "float", nullable: false),
+                    ProfitMarginPorcent = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    StockOnHand = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Product", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ReportMaterial",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Category = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CurrentStock = table.Column<double>(type: "float", nullable: false),
-                    UnitOfMeasure = table.Column<int>(type: "int", nullable: false),
-                    TotalCost = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    UnitCost = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    LowStockThreshold = table.Column<double>(type: "float", nullable: true),
-                    MovementType = table.Column<int>(type: "int", nullable: false),
-                    LastUpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    SupplierId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ReportMaterial", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_ReportMaterial_Supplier_SupplierId",
-                        column: x => x.SupplierId,
-                        principalTable: "Supplier",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -105,16 +78,32 @@ namespace Martins.Backend.Infrastructure.Repository.Migrations
                     MaterialCost = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     TotalCost = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     TotalAdditionalCosts = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    StockQuantity = table.Column<double>(type: "float", nullable: false),
+                    StockQuantity = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Profit = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    ProfitMarginPorcent = table.Column<double>(type: "float", nullable: false),
-                    StockOnHand = table.Column<double>(type: "float", nullable: false),
+                    ProfitMarginPorcent = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    StockOnHand = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     MovementType = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ReportProduct", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Supplier",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ContactName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Phone = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Supplier", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -167,11 +156,96 @@ namespace Martins.Backend.Infrastructure.Repository.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Material",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Category = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CurrentStock = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    UnitOfMeasure = table.Column<int>(type: "int", nullable: false),
+                    TotalCost = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    UnitCost = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    LowStockThreshold = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    LastUpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    SupplierId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Material", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Material_Supplier_SupplierId",
+                        column: x => x.SupplierId,
+                        principalTable: "Supplier",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ReportMaterial",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Category = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CurrentStock = table.Column<double>(type: "float", nullable: false),
+                    UnitOfMeasure = table.Column<int>(type: "int", nullable: false),
+                    TotalCost = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    UnitCost = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    LowStockThreshold = table.Column<double>(type: "float", nullable: true),
+                    MovementType = table.Column<int>(type: "int", nullable: false),
+                    LastUpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    SupplierId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ReportMaterial", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ReportMaterial_Supplier_SupplierId",
+                        column: x => x.SupplierId,
+                        principalTable: "Supplier",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "OrderItem",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    OrderId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Quantity = table.Column<double>(type: "float", nullable: false),
+                    TotalRevenue = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    ExpectedProfit = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    RealProfit = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    UnitPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    UnitCost = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_OrderItem", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_OrderItem_Order_OrderId",
+                        column: x => x.OrderId,
+                        principalTable: "Order",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_OrderItem_Product_ProductId",
+                        column: x => x.ProductId,
+                        principalTable: "Product",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "ProductMaterial",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    QuantityUsed = table.Column<double>(type: "float", nullable: false),
+                    QuantityUsed = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     MaterialId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ReportProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
@@ -198,38 +272,10 @@ namespace Martins.Backend.Infrastructure.Repository.Migrations
                         principalColumn: "Id");
                 });
 
-            migrationBuilder.CreateTable(
-                name: "OrderItem",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    OrderId = table.Column<int>(type: "int", nullable: false),
-                    OrderId1 = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Quantity = table.Column<double>(type: "float", nullable: false),
-                    TotalRevenue = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    ExpectedProfit = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    RealProfit = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    UnitPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    UnitCost = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_OrderItem", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_OrderItem_Order_OrderId1",
-                        column: x => x.OrderId1,
-                        principalTable: "Order",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_OrderItem_Product_ProductId",
-                        column: x => x.ProductId,
-                        principalTable: "Product",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
+            migrationBuilder.CreateIndex(
+                name: "IX_Material_SupplierId",
+                table: "Material",
+                column: "SupplierId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Order_CustomerId",
@@ -237,9 +283,9 @@ namespace Martins.Backend.Infrastructure.Repository.Migrations
                 column: "CustomerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_OrderItem_OrderId1",
+                name: "IX_OrderItem_OrderId",
                 table: "OrderItem",
-                column: "OrderId1");
+                column: "OrderId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_OrderItem_ProductId",
@@ -299,6 +345,9 @@ namespace Martins.Backend.Infrastructure.Repository.Migrations
                 name: "Order");
 
             migrationBuilder.DropTable(
+                name: "Material");
+
+            migrationBuilder.DropTable(
                 name: "Product");
 
             migrationBuilder.DropTable(
@@ -306,6 +355,9 @@ namespace Martins.Backend.Infrastructure.Repository.Migrations
 
             migrationBuilder.DropTable(
                 name: "Customer");
+
+            migrationBuilder.DropTable(
+                name: "Supplier");
         }
     }
 }

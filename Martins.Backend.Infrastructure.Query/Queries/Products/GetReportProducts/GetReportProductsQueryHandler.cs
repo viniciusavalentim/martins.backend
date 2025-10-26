@@ -15,7 +15,7 @@ namespace Martins.Backend.Infrastructure.Query.Queries.Products.GetReportProduct
         public async Task<GetReportProductsQueryResponse> Handle(GetReportProductsQuery request, CancellationToken cancellationToken)
         {
             var response = new GetReportProductsQueryResponse();
-            var products = await _productRepository.GetReportProducts(request.SearchText);
+            var products = await _productRepository.GetReportProducts(request.SearchText ?? "");
 
             response.Data = products.Data ?? [];
             return response;
