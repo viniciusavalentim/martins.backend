@@ -89,6 +89,7 @@ namespace Martins.Backend.Infrastructure.Repository.Context.Repositories.Expense
                 expense.Date = request.Date;
                 expense.Notes = request.Notes;
 
+                _context.OperationalExpense.Update(expense);
                 await _context.SaveChangesAsync();
 
                 response.Success = true;

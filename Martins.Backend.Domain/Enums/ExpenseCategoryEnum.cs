@@ -2,11 +2,11 @@
 {
     public enum ExpenseCategoryEnum
     {
-        Equipment,
-        Utilities,
-        Marketing,
-        Rent,
-        Labor,
-        Other
+        Equipment = 1,
+        Utilities = 2,
+        Marketing = 3,
+        Rent = 4,
+        Labor = 5,
+        Othe = 6
     }
 }
