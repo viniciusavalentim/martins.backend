@@ -15,5 +15,6 @@ namespace Martins.Backend.Domain.Models
         public decimal TotalCost { get; set; }
         public OrderStatusEnum Status { get; set; }
         public List<OrderItem> Items { get; set; } = new List<OrderItem>();
+        public List<OrderAdditionalCost>? OrderAdditionalCosts { get; set; }
     }
 }

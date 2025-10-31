@@ -1,7 +1,8 @@
 using Martins.Backend.Infrastructure.Repository.Context;
+using Martins.Backend.Infrastructure.Repository.Context.Seed;
 using Microsoft.EntityFrameworkCore;
-using Scalar.AspNetCore;
 using Pim.Helpdesk;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,12 +19,21 @@ builder.Services.AddCors(options =>
     });
 });
 
+
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 Bootstrapper.RegisterServices(builder.Services);
 
 var app = builder.Build();
+
+//ISSO APAGA TODOS OS DADOS DA TABELA DO BANCO DE DADOS USAR COM SABEDORIA
+//using (var scope = app.Services.CreateScope())
+//{
+//    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+//    await CleanupDatabase.ClearAllTablesAsync(context);
+//}
 
 app.UseCors("AllowAllOrigins");
 

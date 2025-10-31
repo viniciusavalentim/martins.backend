@@ -9,6 +9,7 @@ namespace Martins.Backend.Domain.Commands.Sale.Create
         public Guid? CustomerId { get; set; }
         public OrderStatusEnum OrderStatus { get; set; }
         public List<OrderItem> OrderItems { get; set; } = [];
+        public List<OrderAdditionalCost>? AdditionalCosts { get; set; }
         public string Observations { get; set; } = string.Empty;
     }
 }

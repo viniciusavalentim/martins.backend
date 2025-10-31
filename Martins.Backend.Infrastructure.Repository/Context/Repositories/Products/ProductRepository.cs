@@ -149,12 +149,13 @@ namespace Martins.Backend.Infrastructure.Repository.Context.Repositories.Product
                     CreateReportMaterial(
                             material.Name,
                             material.Category,
-                            request.QuantityToProduce,
+                            (item.QuantityUsed * request.QuantityToProduce),
                             MovementTypeEnum.Remove,
                             material.TotalCost,
+                            material.UnitCost,
                             material.UnitOfMeasure,
                             material.Supplier?.Name
-                        );
+                    );
                 }
 
                 product.StockQuantity += request.QuantityToProduce;
@@ -301,7 +302,7 @@ namespace Martins.Backend.Infrastructure.Repository.Context.Repositories.Product
             }
         }
 
-        public void CreateReportMaterial(string name, string category, decimal quantity, MovementTypeEnum type, decimal totalCost, UnitOfMeasureEnum unit, string? supplier)
+        public void CreateReportMaterial(string name, string category, decimal quantity, MovementTypeEnum type, decimal totalCost, decimal unitCost, UnitOfMeasureEnum unit, string? supplier)
         {
             var reportaterial = new ReportMaterial
             {
@@ -311,7 +312,7 @@ namespace Martins.Backend.Infrastructure.Repository.Context.Repositories.Product
                 MovementType = type,
                 TotalCost = totalCost,
                 Supplier = supplier != null ? new Supplier { Name = supplier } : null,
-                UnitCost = quantity > 0 ? totalCost / quantity : 0,
+                UnitCost = unitCost,
                 UnitOfMeasure = unit
             };
 

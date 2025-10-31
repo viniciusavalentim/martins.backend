@@ -22,8 +22,19 @@ namespace Martins.Backend.Infrastructure.Repository.Context
         public DbSet<Order> Order { get; set; }
         public DbSet<OrderItem> OrderItem { get; set; }
         public DbSet<OperationalExpense> OperationalExpense { get; set; }
+        public DbSet<OrderAdditionalCost> OrderAdditionalCost { get; set; }
+
 
         public DbSet<ReportMaterial> ReportMaterial { get; set; }
         public DbSet<ReportProduct> ReportProduct { get; set; }
+
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+
+            modelBuilder.Entity<Material>()
+                .Property(m => m.UnitCost)
+                .HasColumnType("decimal(18, 4)");
+        }
     }
 }

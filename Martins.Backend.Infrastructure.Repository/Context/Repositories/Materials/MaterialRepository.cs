@@ -40,6 +40,7 @@ namespace Martins.Backend.Infrastructure.Repository.Context.Repositories.Materia
 
                 decimal newTotalStock;
                 decimal newTotalCost;
+                decimal unitCost;
                 decimal newUnitCost;
 
                 if (material.CurrentStock == 0)
@@ -50,14 +51,16 @@ namespace Martins.Backend.Infrastructure.Repository.Context.Repositories.Materia
                 }
                 else
                 {
+
                     newTotalStock = material.CurrentStock + quantityToAdd;
                     newTotalCost = material.TotalCost + totalCost;
-                    newUnitCost = newTotalStock > 0 ? newTotalCost / newTotalStock : 0;
+                    unitCost = quantityToAdd > 0 ? totalCost / quantityToAdd : 0;
+                    newUnitCost = ((material.CurrentStock * material.UnitCost) + (quantityToAdd * unitCost)) / newTotalStock;
                 }
 
                 material.CurrentStock = newTotalStock;
                 material.TotalCost = newTotalCost;
-                material.UnitCost = Math.Round(newUnitCost, 3);
+                material.UnitCost = Math.Round(newUnitCost, 3, MidpointRounding.AwayFromZero);
                 material.LastUpdatedAt = DateTime.Now;
 
                 if (!string.IsNullOrWhiteSpace(supplier))
@@ -87,6 +90,7 @@ namespace Martins.Backend.Infrastructure.Repository.Context.Repositories.Materia
                        quantityToAdd,
                        MovementTypeEnum.Add,
                        totalCost,
+                       material.UnitCost,
                        material.UnitOfMeasure,
                        supplier
                 );
@@ -107,7 +111,6 @@ namespace Martins.Backend.Infrastructure.Repository.Context.Repositories.Materia
 
             try
             {
-
                 decimal unitCost = request.CurrentStock > 0
                     ? (decimal)request.TotalCost / request.CurrentStock
                     : 0;
@@ -134,13 +137,24 @@ namespace Martins.Backend.Infrastructure.Repository.Context.Repositories.Materia
                     CurrentStock = request.CurrentStock,
                     UnitOfMeasure = request.UnitOfMeasure,
                     TotalCost = request.TotalCost,
-                    UnitCost = Math.Round(unitCost, 3),
+                    UnitCost = Math.Round(unitCost, 3, MidpointRounding.AwayFromZero),
                     LastUpdatedAt = DateTime.Now,
                     Supplier = supplier
                 };
 
                 await _context.Material.AddAsync(material);
                 await _context.SaveChangesAsync();
+
+                CreateReportMaterial(
+                       material.Name,
+                       material.Category,
+                       material.CurrentStock,
+                       MovementTypeEnum.Add,
+                       material.TotalCost,
+                       material.UnitCost,
+                       material.UnitOfMeasure,
+                       material.Supplier.Name
+                );
 
                 response.Success = true;
                 response.Data = true;
@@ -227,7 +241,7 @@ namespace Martins.Backend.Infrastructure.Repository.Context.Repositories.Materia
             }
         }
 
-        public void CreateReportMaterial(string name, string category, decimal quantity, MovementTypeEnum type, decimal totalCost, UnitOfMeasureEnum unit, string? supplier)
+        public void CreateReportMaterial(string name, string category, decimal quantity, MovementTypeEnum type, decimal totalCost, decimal unitCost, UnitOfMeasureEnum unit, string? supplier)
         {
 
             var reportaterial = new ReportMaterial
@@ -238,7 +252,7 @@ namespace Martins.Backend.Infrastructure.Repository.Context.Repositories.Materia
                 MovementType = type,
                 TotalCost = totalCost,
                 Supplier = supplier != null ? new Supplier { Name = supplier } : null,
-                UnitCost = quantity > 0 ? totalCost / quantity : 0,
+                UnitCost = unitCost,
                 UnitOfMeasure = unit
             };
 
@@ -263,7 +277,6 @@ namespace Martins.Backend.Infrastructure.Repository.Context.Repositories.Materia
                     return response;
                 }
 
-
                 if (material.CurrentStock != request.CurrentStock)
                 {
                     CreateReportMaterial(
@@ -272,26 +285,15 @@ namespace Martins.Backend.Infrastructure.Repository.Context.Repositories.Materia
                             request.CurrentStock,
                             request.CurrentStock > material.CurrentStock ? MovementTypeEnum.Add : MovementTypeEnum.Remove,
                             request.TotalCost,
+                            material.UnitCost,
                             request.UnitOfMeasure,
                             request.Supplier
                         );
                 }
 
-                decimal unitCost = request.CurrentStock > 0
-                    ? (decimal)request.TotalCost / request.CurrentStock
-                    : 0;
-
-                if (unitCost == 0)
-                {
-                    response.Success = false;
-                    response.Message = $"Custo por unidade não pode ser 0";
-                    return response;
-                }
-
                 material.Name = request.Name;
                 material.CurrentStock = request.CurrentStock;
                 material.TotalCost = request.TotalCost;
-                material.UnitCost = unitCost;
                 material.Category = request.Category;
                 material.UnitOfMeasure = request.UnitOfMeasure;
 
@@ -355,11 +357,14 @@ namespace Martins.Backend.Infrastructure.Repository.Context.Repositories.Materia
             foreach (var product in affectedProducts)
             {
                 decimal newMaterialCost = 0;
+
                 foreach (var bomItem in product.BillOfMaterials)
                 {
                     if (bomItem.Material != null)
                     {
-                        newMaterialCost += bomItem.Material.UnitCost * bomItem.QuantityUsed;
+                        var unitCost = Math.Round(bomItem.Material.UnitCost, 3, MidpointRounding.AwayFromZero);
+                        var cost = unitCost * bomItem.QuantityUsed;
+                        newMaterialCost += cost;
                     }
                 }
 
